@@ -2,7 +2,6 @@
 """
 app_lidarStrobeParser
 """
-import logging
 import glob
 import time
 import tkinter as tk
@@ -81,8 +80,6 @@ class Application(tk.Frame):
         self.parseButton.grid(row=4, column=0, columnspan=3, padx=4, pady=4)
 
     def parseData(self):
-        logging.log(logging.DEBUG, "Parse data button was clicled")
-        print("Parse ivoked")
         targetPath = self.targetPathInput.get() + "\\"
         sourcePath = self.sourcePathInput.get() + "\\"
         prefix = self.prefixInput.get()
@@ -175,15 +172,11 @@ def appendResultsToFile(path, name, time, diff):
     f.write(LINE_ENDING)
 
 def routineOverAllFilesInPath(path, outputPath, prefix):
-    logging.log(logging.DEBUG, "Routine over all files is started")
-    print("Routine invoked")
-    
     # Get list of the files
     dataFiles = getFilesInFolder(path, "dat")  
     
     # Processing all files 
     for dataFile in dataFiles:
-        logging.log(logging.DEBUG, " + Processing file > " + dataFile)
         # Get time and diffs
         time, diff_first, diff_second = dataFileHandle(dataFile)
         # Form output files
@@ -196,13 +189,9 @@ def routineOverAllFilesInPath(path, outputPath, prefix):
         appendResultsToFile(outputPath, getFilename(prefix, 500, 2), time, diff_second[0]);
         appendResultsToFile(outputPath, getFilename(prefix, 1000, 2), time, diff_second[1]);
         appendResultsToFile(outputPath, getFilename(prefix, 1500, 2), time, diff_second[2]);
-        appendResultsToFile(outputPath, getFilename(prefix, 2000, 2), time, diff_second[3]);
-    
-    logging.log(logging.DEBUG, "Routine over all files is ended")    
+        appendResultsToFile(outputPath, getFilename(prefix, 2000, 2), time, diff_second[3]); 
     
 if __name__== "__main__":
-    logging.basicConfig()
-    #routineOverAllFilesInPath(".\\samples\\", ".\\output\\", "test")
     root = tk.Tk()
     app = Application(master=root)
     app.mainloop()
