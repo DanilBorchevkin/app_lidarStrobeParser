@@ -5,6 +5,8 @@ app_lidarStrobeParser
 import logging
 import glob
 import time
+import tkinter as tk
+from tkinter import filedialog
 
 DATA_START_LINE = 10
 TS_LINE_NUMBER = 13
@@ -12,12 +14,98 @@ END_OF_FILE = "@"
 LINE_ENDING = "\n"
 TIME_DELIMETER = "."
 
+class Application(tk.Frame):
+    
+    def __init__(self, master=None):
+        super().__init__(master)
+        # Define frame size and position in the screen :
+        ScreenSizeX = master.winfo_screenwidth()  # Get screen width [pixels]
+        ScreenSizeY = master.winfo_screenheight() # Get screen height [pixels]
+        ScreenRatio = 0.8                              # Set the screen ratio for width and height
+        FrameSizeX  = int(ScreenSizeX * ScreenRatio)
+        FrameSizeY  = int(ScreenSizeY * ScreenRatio)
+        FramePosX   = (ScreenSizeX - FrameSizeX)/2 # Find left and up border of window
+        FramePosY   = (ScreenSizeY - FrameSizeY)/2
+        #self.master.geometry("%sx%s+%s+%s"%(FrameSizeX,FrameSizeY,FramePosX,FramePosY))
+        #self.master.geometry("500x500")
+        self.PADDING = 4
+        self.createWidgets()
+
+    def createWidgets(self):
+        # First row
+        self.sourcePathLabel = tk.Label(self.master)
+        self.sourcePathLabel["text"] = "Source folder:"
+        self.sourcePathLabel.grid(row=0, column=0, padx=4, pady=4)
+        
+        self.sourcePathInput = tk.Entry(self.master)
+        self.sourcePathInput["width"] = 50
+        self.sourcePathInput.grid(row=0, column=1, padx=4, pady=4)
+        
+        self.sourcePathButton = tk.Button(self.master)
+        self.sourcePathButton["text"] = "Browse"
+        self.sourcePathButton["command"] = self.chooseSourcePath
+        self.sourcePathButton.grid(row=0, column=2, padx=4, pady=4)
+        
+        # Second row
+        self.targetPathLabel = tk.Label(self.master)
+        self.targetPathLabel["text"] = "Targer folder:"
+        self.targetPathLabel.grid(row=1, column=0, padx=4, pady=4)
+
+        self.targetPathInput = tk.Entry(self.master)
+        self.targetPathInput["width"] = 50
+        self.targetPathInput.grid(row=1, column=1, padx=4, pady=4)
+        
+        self.targetPathButton = tk.Button(self.master)
+        self.targetPathButton["text"] = "Browse"
+        self.targetPathButton["command"] = self.chooseTargetPath
+        self.targetPathButton.grid(row=1, column=2, columnspan=3, padx=4, pady=4)
+        
+        # Third row
+        self.prefixLabel = tk.Label(self.master)
+        self.prefixLabel["text"] = "Prefix for files:"
+        self.prefixLabel.grid(row=2, column=0, padx=4, pady=4)
+        
+        self.prefixInput = tk.Entry(self.master)
+        self.prefixInput["width"] = 50
+        self.prefixInput.grid(row=2, column=1, padx=4, pady=4)
+
+        # Fouth row
+        self.statusLabel = tk.Label(self.master)
+        self.statusLabel["text"] = "Write paths and name prefix"
+        self.statusLabel.grid(row=3, column=0, columnspan=3, padx=4, pady=4)
+
+        # Fifth row
+        self.parseButton = tk.Button(self.master)
+        self.parseButton["text"] = "Parse Data"
+        self.parseButton["command"] = self.parseData
+        self.parseButton.grid(row=4, column=0, columnspan=3, padx=4, pady=4)
+
+    def parseData(self):
+        logging.log(logging.DEBUG, "Parse data button was clicled")
+        print("Parse ivoked")
+        targetPath = self.targetPathInput.get() + "\\"
+        sourcePath = self.sourcePathInput.get() + "\\"
+        prefix = self.prefixInput.get()
+        print(targetPath)
+        routineOverAllFilesInPath(sourcePath, targetPath, prefix)
+        
+    def chooseTargetPath(self):
+        selectedPath = filedialog.askdirectory()
+        if(selectedPath != ""):
+            self.targetPathInput.delete(0, tk.END)
+            self.targetPathInput.insert(0, selectedPath)    
+            
+    def chooseSourcePath(self):
+        selectedPath = filedialog.askdirectory()
+        if(selectedPath != ""):
+            self.sourcePathInput.delete(0, tk.END)
+            self.sourcePathInput.insert(0, selectedPath)
+
 def getFilesInFolder(pathToFolder, fileFormat):
     query = pathToFolder + "*." + fileFormat
     result = glob.glob(query)
     
     return result
-
 
 def getStrobeValuesFromLine(line):
     line = line.strip()
@@ -88,6 +176,7 @@ def appendResultsToFile(path, name, time, diff):
 
 def routineOverAllFilesInPath(path, outputPath, prefix):
     logging.log(logging.DEBUG, "Routine over all files is started")
+    print("Routine invoked")
     
     # Get list of the files
     dataFiles = getFilesInFolder(path, "dat")  
@@ -113,4 +202,7 @@ def routineOverAllFilesInPath(path, outputPath, prefix):
     
 if __name__== "__main__":
     logging.basicConfig()
-    routineOverAllFilesInPath(".\\samples\\", ".\\output\\", "test")
+    #routineOverAllFilesInPath(".\\samples\\", ".\\output\\", "test")
+    root = tk.Tk()
+    app = Application(master=root)
+    app.mainloop()
