@@ -99,3 +99,10 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# PyInstaller files
+*.spec
+/build
+/dist
+/output
+/__pycache__
