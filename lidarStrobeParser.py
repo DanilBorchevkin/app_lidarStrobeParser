@@ -6,12 +6,16 @@ import glob
 import time
 import tkinter as tk
 from tkinter import filedialog
+from tkinter import messagebox
 
 DATA_START_LINE = 10
 TS_LINE_NUMBER = 13
 END_OF_FILE = "@"
 LINE_ENDING = "\n"
 TIME_DELIMETER = "."
+# For future
+DEFAULT_INPUT_FOLDER = ".\\input"
+DEFAULT_OUTPUT_FOLDER = ".\\output"
 
 class Application(tk.Frame):
     
@@ -83,8 +87,12 @@ class Application(tk.Frame):
         targetPath = self.targetPathInput.get() + "\\"
         sourcePath = self.sourcePathInput.get() + "\\"
         prefix = self.prefixInput.get()
-        print(targetPath)
+        # Parse all data
         routineOverAllFilesInPath(sourcePath, targetPath, prefix)
+        # Indicate finish of parsing
+        #self.updateStatus("Parsing was finished!")
+        messagebox.showinfo("Lidar Strobe Parser", "Parsing was finished successfuly")
+
         
     def chooseTargetPath(self):
         selectedPath = filedialog.askdirectory()
@@ -97,6 +105,13 @@ class Application(tk.Frame):
         if(selectedPath != ""):
             self.sourcePathInput.delete(0, tk.END)
             self.sourcePathInput.insert(0, selectedPath)
+    
+    def updateStatus(self, text, color="black"):
+        '''
+        At this time not used
+        '''
+        self.statusLabel["text"] = text
+        self.statusLabel["fg"] = color
 
 def getFilesInFolder(pathToFolder, fileFormat):
     query = pathToFolder + "*." + fileFormat
@@ -122,7 +137,8 @@ def getDiffForStrobe(data, strobeNumber):
 
 def convertTimeToDecimal(timeInStr):
     result = time.strptime(timeInStr, "%H:%M:%S")
-    result = str(result[3]) + TIME_DELIMETER + str(int((result[4] * 60 / 3600)*100))
+    # We used 3 digits after point. For change it please change last multiplier (1000 for 3 digits, 100 for 2 digits)
+    result = str(result[3]) + TIME_DELIMETER + str(int((result[4] * 60 / 3600) * 1000))
     return result
 
 def dataFileHandle(inputFilepath):
@@ -194,4 +210,5 @@ def routineOverAllFilesInPath(path, outputPath, prefix):
 if __name__== "__main__":
     root = tk.Tk()
     app = Application(master=root)
+    app.master.title("Lidar Strobe Parser")
     app.mainloop()

@@ -104,5 +104,5 @@ ENV/
 *.spec
 /build
 /dist
-/output
+/output/*.txt
 /__pycache__
